@@ -10,14 +10,26 @@
 // @grant        none
 // @downloadURL  https://github.com/knowlet/Gentle-Viewer/raw/master/GentleViewer.user.js
 // ==/UserScript==
-(function(lpPage, lpImg) {
-    var Gallery = function(pageNum, imgNum) {
+
+var data = document.querySelector("body div.gtb p.gpc").textContent.split(" ");
+
+var minPic = parseInt(data[1]);
+var maxPic = parseInt(data[3]);
+
+var imgNum = parseInt(gdd.querySelector("#gdd tr:nth-child(n+6) td.gdt2").textContent.split(" ")[0]);
+
+var pagePic = maxPic - minPic +1;
+
+
+(function(lpPage, lpImg,minPic,maxPic) {
+    var Gallery = function(pageNum, imgNum,minPic,maxPic) {
         this.pageNum = pageNum || 0;
         this.imgNum = imgNum || 0;
     };
 
     Gallery.prototype = {
         imgList: [],
+        
         checkFunctional: function() {
             return (this.imgNum > 41 && this.pageNum < 2) || this.imgNum !== 0;
         },
@@ -26,8 +38,11 @@
                 var ajax = new XMLHttpRequest();
                 ajax.onreadystatechange = function() {
                     if (4 == ajax.readyState && 200 == ajax.status) {
-                        var imgNo = parseInt(ajax.responseText.match("startpage=(\\d+)").pop());
+                        var imgNo =  parseInt(ajax.responseText.match("startpage=(\\d+)").pop());
                         var src = (new DOMParser()).parseFromString(ajax.responseText, "text/html").getElementById("img").src;
+                        console.log(imgNo);
+                        console.log(src);
+                        console.log(Gallery.prototype.imgList);
                         Gallery.prototype.imgList[imgNo-1].src = src;
                     }
                 };
@@ -54,16 +69,32 @@
                 gdt.removeChild(gdt.firstChild);
         },
         generateImg: function(callback) {
-            for (var i = 0; i < this.imgNum; ++i) {
-                var img = document.createElement("img");
-                img.setAttribute("src", "http://ehgt.org/g/roller.gif");
-                this.imgList.push(img);
-                gdt.appendChild(img);
+            console.log(maxPic,minPic,this.imgNum);
+                        for (var i = 0; i < this.imgNum; i++) {
+                if(i<maxPic && i >= minPic - 1 )
+                {
+                    var img = document.createElement('img');
+                    img.setAttribute("src", "http://ehgt.org/g/roller.gif");
+                    this.imgList.push(img);
+                    console.log(this.imgList.length);
+                    gdt.appendChild(img);
+                   
+                }
+                else
+                {
+                    var img = document.createElement("img");
+                    this.imgList.push(img);
+                    console.log(this.imgList.length);
+                    
+                }
             }
             callback && callback();
+            document.getElementById("gdt").style.textAlign="center";
+            document.getElementById("gdt").style.maxWidth="100%";
+
         }
     };
-    var g = new Gallery(lpPage, lpImg);
+    var g = new Gallery(lpPage, lpImg,minPic,maxPic);
     if (g.checkFunctional()) {
         g.generateImg(function() {
             g.loadPageUrls(gdt);
@@ -76,4 +107,5 @@
         alert("There are some issue in the script\nplease open an issue on Github");
         window.open("https://github.com/knowlet/Gentle-Viewer/issues");
     }
-})(document.querySelectorAll("table.ptt td").length - 2, parseInt(gdd.querySelector("#gdd tr:nth-child(n+6) td.gdt2").textContent.split(" ")[0]));
+})(document.querySelectorAll("table.ptt td").length - 2,imgNum ,minPic,maxPic);
+

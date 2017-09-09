@@ -1,0 +1,13 @@
+{
+  "name": "Gentle Viewer",
+  "version": "0.0.1",
+  "manifest_version": 2,
+  "description": "A chrome extension automatic load some comic pic.",
+  "content_scripts": [
+  {
+      "matches": ["https://exhentai.org/g/*"],
+      "js": ["content-ex.js"]
+  }
+  ]
+  
+}
