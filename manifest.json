@@ -3,11 +3,22 @@
   "version": "0.0.1",
   "manifest_version": 2,
   "description": "A chrome extension automatic load some comic pic.",
+  "background": {
+      "scripts": ["js/background.js"],
+      "persistent": true
+  },  
+    "browser_action": {
+    "default_icon": "icons/on.png",
+    "default_title": "script on"
+  },
+  
   "content_scripts": [
   {
       "matches": ["https://exhentai.org/g/*"],
-      "js": ["content-ex.js"]
+      "js": ["js/content-ex.js"]
   }
+  ],
+  "permissions": [
+    "storage"
   ]
-  
 }
