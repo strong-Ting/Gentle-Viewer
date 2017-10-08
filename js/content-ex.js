@@ -56,10 +56,11 @@ function viewer(lpPage, lpImg,minPic,maxPic) {
                         var src = (new DOMParser()).parseFromString(ajax.responseText, "text/html").getElementById("img").src;
 
                         Gallery.prototype.imgList[imgNo-1].src = src;
-
+            
                         chrome.storage.sync.get("width",function(item){ //when load pic ,change to its width of setting 
                             var width = null;
                             var page_width = document.getElementById("gdt").offsetWidth;
+                            
                             if(item.width == undefined)
                             {
                                 width = 0.8;
@@ -68,7 +69,8 @@ function viewer(lpPage, lpImg,minPic,maxPic) {
                             {
                                 width = item.width
                             }
-                            document.getElementById("gdt").children[imgNo-1].setAttribute('width',width*page_width);
+                            var pic_num = (imgNo-1) % 20;
+                            document.getElementById("gdt").children[pic_num].setAttribute('width',width*page_width);
                         })
 
 
