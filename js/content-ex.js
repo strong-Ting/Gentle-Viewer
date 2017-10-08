@@ -34,6 +34,7 @@ chrome.storage.sync.get("status",function(items) {
 });
 
 
+
 function viewer(lpPage, lpImg,minPic,maxPic) {
     var Gallery = function(pageNum, imgNum,minPic,maxPic) {
         this.pageNum = pageNum || 0;
@@ -53,10 +54,24 @@ function viewer(lpPage, lpImg,minPic,maxPic) {
                     if (4 == ajax.readyState && 200 == ajax.status) {
                         var imgNo =  parseInt(ajax.responseText.match("startpage=(\\d+)").pop());
                         var src = (new DOMParser()).parseFromString(ajax.responseText, "text/html").getElementById("img").src;
-                        console.log(imgNo);
-                        console.log(src);
-                        console.log(Gallery.prototype.imgList);
+
                         Gallery.prototype.imgList[imgNo-1].src = src;
+
+                        chrome.storage.sync.get("width",function(item){ //when load pic ,change to its width of setting 
+                            var width = null;
+                            var page_width = document.getElementById("gdt").offsetWidth;
+                            if(item.width == undefined)
+                            {
+                                width = 0.8;
+                            }
+                            else
+                            {
+                                width = item.width
+                            }
+                            document.getElementById("gdt").children[imgNo-1].setAttribute('width',width*page_width);
+                        })
+
+
                     }
                 };
                 ajax.open("GET", item.href);
@@ -82,29 +97,67 @@ function viewer(lpPage, lpImg,minPic,maxPic) {
                 gdt.removeChild(gdt.firstChild);
         },
         generateImg: function(callback) {
-            console.log(maxPic,minPic,this.imgNum);
-                        for (var i = 0; i < this.imgNum; i++) {
+
+            for (var i = 0; i < this.imgNum; i++) {
                 if(i<maxPic && i >= minPic - 1 )
                 {
                     var img = document.createElement('img');
                     img.setAttribute("src", "http://ehgt.org/g/roller.gif");
+
                     this.imgList.push(img);
-                    console.log(this.imgList.length);
+
                     gdt.appendChild(img);
-                   
                 }
                 else
                 {
                     var img = document.createElement("img");
                     this.imgList.push(img);
-                    console.log(this.imgList.length);
-                    
                 }
             }
-            callback && callback();
+
             document.getElementById("gdt").style.textAlign="center";
             document.getElementById("gdt").style.maxWidth="100%";
+            
+            document.getElementById('gdo4').innerHTML= ""; //clear origin button(Normal Large)
 
+            var single_pic = document.createElement("div");//create single button
+            single_pic.className = "tha nosel";
+            single_pic.innerHTML += 'single';
+            gdo4.appendChild(single_pic);
+
+
+            var double_pic = document.createElement("div"); //create double button
+            double_pic.className = "tha nosel";
+            double_pic.innerHTML = 'double';
+            gdo4.appendChild(double_pic);
+
+            document.getElementById('gdo4').children[0] //when single button click change value of width
+                    .addEventListener('click', function (event) {
+                chrome.storage.sync.set({"width":0.8});
+            });
+
+
+            document.getElementById('gdo4').children[1] //when double button click change value of width
+                    .addEventListener('click', function (event) {
+                chrome.storage.sync.set({"width":0.48});
+            });
+
+
+            chrome.storage.onChanged.addListener(function(changes,area){ //when value of width is changed,change width of pics
+        
+                var page_width = document.getElementById("gdt").offsetWidth;
+                pic_width(changes.width.newValue*page_width);
+
+            })
+        
+            function pic_width(width)//change width of pics 
+            {
+                for(var i = document.getElementById('gdt').children.length;i>0;i--) 
+                document.getElementById('gdt').children[i-1].setAttribute('width',width); 
+            }    
+
+
+            callback && callback();
         }
     };
     var g = new Gallery(lpPage, lpImg,minPic,maxPic);
@@ -112,8 +165,8 @@ function viewer(lpPage, lpImg,minPic,maxPic) {
         g.generateImg(function() {
             g.loadPageUrls(gdt);
             g.claenGDT();
-            if (g.pageNum)
-                g.getNextPage();
+        //    if (g.pageNum)
+                //g.getNextPage();
         });
     }
     else {
