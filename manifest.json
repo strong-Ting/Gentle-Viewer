@@ -14,7 +14,7 @@
   
   "content_scripts": [
   {
-      "matches": ["https://exhentai.org/g/*"],
+      "matches": ["https://exhentai.org/g/*","https://e-hentai.org/g/*"],
       "js": ["js/content-ex.js"]
   }
   ],
