@@ -19,6 +19,9 @@
   }
   ],
   "permissions": [
-    "storage"
+    "storage",
+    "downloads",
+    "pageCapture",
+    "contextMenus"
   ]
 }
